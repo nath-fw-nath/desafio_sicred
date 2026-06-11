@@ -42,7 +42,7 @@ O que acontece automaticamente:
 1. A imagem Docker é construída com Java 17 + Maven
 2. As dependências Maven são baixadas e cacheadas na imagem
 3. Os testes são executados contra `https://dummyjson.com`
-4. O relatório HTML é gerado com `mvn allure:report`
+4. O relatório HTML é gerado com `make report`
 5. O nginx sobe e serve o relatório
 6. O browser abre automaticamente em **http://localhost:5050**
 7. O resultado dos testes é exibido no terminal
@@ -57,12 +57,27 @@ make clean
 
 ## Comandos Makefile
 
-| Comando | Alvo | O que faz |
-|---|---|---|
-| `make` / `make run` | `run` | Constrói a imagem, executa os testes, aguarda o nginx subir, abre o relatório Allure em `http://localhost:5050` e exibe o resumo no terminal |
-| `make test` | `test` | Sobe apenas o container de testes (`docker-compose run --rm tests`) e exibe o resultado; não inicia o nginx |
-| `make logs` | `logs` | Acompanha os logs do container de testes em tempo real (`docker-compose logs -f tests`) |
-| `make clean` | `clean` | Para todos os containers e remove os volumes criados (`docker-compose down -v`) |
+### Com Docker
+
+| Comando | O que faz |
+|---|---|
+| `make` / `make run` | Constrói a imagem, executa os testes, aguarda o nginx subir, abre o relatório Allure em `http://localhost:5050` e exibe o resumo no terminal |
+| `make test` | Sobe apenas o container de testes e exibe o resultado; não inicia o nginx |
+| `make logs` | Acompanha os logs do container de testes em tempo real |
+| `make clean` | Para todos os containers e remove os volumes criados |
+
+### Localmente (requer Java 17 e Maven)
+
+| Comando | O que faz |
+|---|---|
+| `make local-test` | Executa todos os testes |
+| `make smoke` | Executa apenas os testes smoke (caminho feliz) |
+| `make negative` | Executa apenas os testes negativos |
+| `make local-test-class CLASS=AuthTest` | Executa uma classe de teste específica |
+| `make local-test-class CLASS="AuthTest,ProductTest"` | Executa múltiplas classes |
+| `make local-clean` | Limpa artefatos e executa todos os testes |
+| `make report` | Gera o relatório Allure em HTML |
+| `make serve` | Gera o relatório Allure e abre no browser |
 
 ---
 
@@ -96,46 +111,46 @@ Na aba *Actions* do repositório, selecione `CI Pipeline` e clique em **Run work
 ### Todos os testes
 
 ```bash
-mvn test
+make local-test
 ```
 
 ### Apenas testes smoke (caminho feliz)
 
 ```bash
-mvn test -Dgroups=smoke
+make smoke
 ```
 
 ### Apenas testes negativos
 
 ```bash
-mvn test -Dgroups=negative
+make negative
 ```
 
 ### Uma classe de teste específica
 
 ```bash
-mvn test -Dtest=AuthTest
-mvn test -Dtest=ProductTest
-mvn test -Dtest=UserTest
-mvn test -Dtest=TestEndpointTest
+make local-test-class CLASS=AuthTest
+make local-test-class CLASS=ProductTest
+make local-test-class CLASS=UserTest
+make local-test-class CLASS=TestEndpointTest
 ```
 
 ### Um método de teste específico
 
 ```bash
-mvn test -Dtest=ProductTest#shouldReturn404ForNonExistentProductId
+make local-test-class CLASS="ProductTest#shouldReturn404ForNonExistentProductId"
 ```
 
 ### Múltiplas classes
 
 ```bash
-mvn test -Dtest="AuthTest,ProductTest"
+make local-test-class CLASS="AuthTest,ProductTest"
 ```
 
 ### Limpar e executar
 
 ```bash
-mvn clean test
+make local-clean
 ```
 
 ---
@@ -145,14 +160,14 @@ mvn clean test
 ### Allure — gera e abre no browser automaticamente
 
 ```bash
-mvn allure:serve
+make serve
 ```
 
 ### Allure — apenas gera o HTML (sem abrir browser)
 
 ```bash
-mvn test
-mvn allure:report
+make local-test
+make report
 ```
 
 O relatório estará em `target/site/allure-maven-plugin/index.html`.
