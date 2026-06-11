@@ -1,0 +1,22 @@
+services:
+
+  tests:
+    build: .
+    container_name: desafio-qe-tests
+    volumes:
+      - allure-report:/app/target/site/allure-maven-plugin
+      - ./target/surefire-reports:/app/target/surefire-reports
+
+  allure:
+    image: nginx:alpine
+    container_name: desafio-qe-allure
+    ports:
+      - "5050:80"
+    volumes:
+      - allure-report:/usr/share/nginx/html:ro
+    depends_on:
+      tests:
+        condition: service_completed_successfully
+
+volumes:
+  allure-report:
