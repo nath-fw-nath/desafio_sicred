@@ -1,5 +1,8 @@
-.PHONY: run test clean logs
+.PHONY: run test logs clean local-test smoke negative local-clean report serve
+
 .DEFAULT_GOAL := run
+
+# ── Docker targets ────────────────────────────────────────────────────────────
 
 run:
 	docker-compose up --build -d
@@ -18,3 +21,29 @@ logs:
 
 clean:
 	docker-compose down -v
+
+# ── Local targets (requer Java 17 e Maven instalados) ─────────────────────────
+
+local-test:
+	mvn test
+
+smoke:
+	mvn test -Dgroups=smoke
+
+negative:
+	mvn test -Dgroups=negative
+
+# Uso: make local-test-class CLASS=AuthTest
+#      make local-test-class CLASS="AuthTest,ProductTest"
+#      make local-test-class CLASS="ProductTest#shouldReturn404ForNonExistentProductId"
+local-test-class:
+	mvn test -Dtest=$(CLASS)
+
+local-clean:
+	mvn clean test
+
+report:
+	mvn allure:report
+
+serve:
+	mvn allure:serve
