@@ -34,7 +34,7 @@ cd desafio_sicred
 ### 2. Execute com o comando principal
 
 ```bash
-make
+make        # equivalente a: make run
 ```
 
 O que acontece automaticamente:
@@ -55,14 +55,14 @@ make clean
 
 ---
 
-## Outros comandos
+## Comandos Makefile
 
-| Comando | O que faz |
-|---|---|
-| `make` | Executa tudo: testes + relatório + abre browser |
-| `make test` | Roda apenas os testes, sem relatório |
-| `make logs` | Acompanha os logs dos testes em tempo real |
-| `make clean` | Para os containers e remove os volumes |
+| Comando | Alvo | O que faz |
+|---|---|---|
+| `make` / `make run` | `run` | Constrói a imagem, executa os testes, aguarda o nginx subir, abre o relatório Allure em `http://localhost:5050` e exibe o resumo no terminal |
+| `make test` | `test` | Sobe apenas o container de testes (`docker-compose run --rm tests`) e exibe o resultado; não inicia o nginx |
+| `make logs` | `logs` | Acompanha os logs do container de testes em tempo real (`docker-compose logs -f tests`) |
+| `make clean` | `clean` | Para todos os containers e remove os volumes criados (`docker-compose down -v`) |
 
 ---
 
@@ -170,7 +170,7 @@ open target/surefire-reports/
 ```
 desafio_sicred/
 ├── .github/workflows/ci.yml        # Pipeline GitHub Actions: Build → Deploy → Test
-├── Makefile                        # Comandos do projeto: make / make test / make clean
+├── Makefile                        # Comandos do projeto: make run / make test / make logs / make clean
 ├── Dockerfile                      # Imagem Maven + Java 17; roda mvn test + allure:report
 ├── docker-compose.yml              # tests (Maven) + allure (nginx na porta 5050)
 ├── pom.xml                         # Dependências: REST Assured, JUnit 5, Allure, Lombok
